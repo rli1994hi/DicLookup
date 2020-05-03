@@ -1,5 +1,7 @@
 # DicLookup
-Look up explanation for a list of word and output in CSV.
+Look up explanation for a list of word and output in CSV. 
+
+Dictionary API used in this script: https://googledictionaryapi.eu-gb.mybluemix.net/. Thanks.
 
 Usage: (Standing where dic_lookup.rb is at) 
 
