@@ -43,7 +43,7 @@ def grab_def(word_list)
     word_def_list << word_def
     puts "done with #{word}"
   end
-  print_word_def_list(word_def_list)
+  output_word_def_list(word_def_list)
 end
 
 def construct_url(word)
@@ -77,15 +77,17 @@ def def_list_str(def_list)
 end
 
 
-def print_word_def_list(word_def_list)
-  puts "================Copy below as csv================"
-
+def output_word_def_list(word_def_list)
   c = CSV.generate do |csv|
     word_def_list.each do |word_def|
       csv << [word_def.word, word_def.def_str]
     end
   end
-  puts c
+
+  File.open("output.csv", 'w') { |file| file.write(c) }
+
+  puts "========================================"
+  puts "The definitions of valid words in the input word list is stored in output.csv."
 end
 
 class WordDef
