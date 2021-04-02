@@ -1,4 +1,4 @@
-# DicLookup
+# WordLookup
 Look up explanation for a list of words and output in CSV. 
 
 Dictionary API used in this script: https://dictionaryapi.dev/. Thanks.
