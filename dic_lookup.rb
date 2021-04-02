@@ -10,22 +10,27 @@ require 'httparty'
 
 URL_PATTERN = "https://api.dictionaryapi.dev/api/v2/entries/en/hello"
 
-PART_OF_SPEECH_MAP = {"adjective" => "adj.", "adverb" => "adv.", "noun" => "n.", "preposition" => "prep.", "verb" => "v.", "conjunction" => "conjunction", "interjection" => "interjection" , "intransitive verb" => "vi.", "transitive verb" => "vt.", }
+PART_OF_SPEECH_MAP = {"adjective" => "adj.", "adverb" => "adv.", "noun" => "n.", "preposition" => "prep.", "verb" => "v.", "conjunction" => "conjunction", "interjection" => "interjection" , "intransitive verb" => "vi.", "transitive verb" => "vt."}
+
+DEF_NOT_FOUND_STRINGS = ["Word not found", "No Definitions Found"]
 
 def grab_def(word_list)
   word_def_list = []
 
   word_list.each do |word|
-    word_def = WordDef.new
+    word_def = SingleWordDef.new
     word_def.word = word
 
     response = get_response(construct_url(word))
-    if response.include?("Word not found")
-      puts "wrong spelling: #{word}\n"
+    unless has_def?(response)
+      puts "No definition found for: [#{word}]. Check the spelling, or google the word directly. Skipping.\n"
       next
     end
+
     response = JSON.parse(response).first
 
+    phonetic = response["phonetic"]
+    word_def.phonetic = phonetic
     meaning_list = response["meanings"]
     def_str = ""
     meaning_list.each do |meaning|
@@ -44,6 +49,13 @@ def grab_def(word_list)
     puts "done with #{word}"
   end
   output_word_def_list(word_def_list)
+end
+
+def has_def?(response)
+    DEF_NOT_FOUND_STRINGS.each do |str|
+        return false if response.include?(str)
+    end
+    return true
 end
 
 def construct_url(word)
@@ -80,7 +92,7 @@ end
 def output_word_def_list(word_def_list)
   c = CSV.generate do |csv|
     word_def_list.each do |word_def|
-      csv << [word_def.word, word_def.def_str]
+      csv << [word_def.word, word_def.def_str, word_def.phonetic]
     end
   end
 
@@ -90,11 +102,12 @@ def output_word_def_list(word_def_list)
   puts "The definitions of valid words in the input word list is stored in output.csv."
 end
 
-class WordDef
-  attr_accessor :word, :def_str
-  def initialize(word = nil, def_str = nil)
+class SingleWordDef
+  attr_accessor :word, :def_str, :phonetic
+  def initialize(word = nil, def_str = nil, phonetic = nil)
     @word = word
     @def_str = def_str
+    @phonetic = phonetic
   end
 end
 
